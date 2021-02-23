@@ -81,16 +81,11 @@ def cagr_sim(df, forecast_len, num_sims=1000):
     return fig, np.array(result)
 
 
-@st.cache(allow_output_mutation=True)
-def bootstrap_sim(df, forecast_len, num_sims=1000, num_bootstraps=10000, fit_distr=stat.johnsonsu):
-    result = []
-    last_close = df['Adj Close'].iloc[-1]
-    
+@st.cache()
+def fit_boots(df, fit_distr=stat.johnsonsu, num_bootstraps=10000):
     bootstrap_dist = np.random.choice(df['pct Adj Close'], num_bootstraps, replace=True)
     fig1 = make_subplots(specs=[[{"secondary_y": True}]])
     fig1.add_trace(go.Histogram(x=bootstrap_dist, name='Bootstrapped Returns'), secondary_y=False)
-    
-    #plt.hist(bootstrap_dist, bins=500)
     
     johnson_mean = np.mean(bootstrap_dist)
     johnson_std = np.std(bootstrap_dist)
@@ -100,7 +95,14 @@ def bootstrap_sim(df, forecast_len, num_sims=1000, num_bootstraps=10000, fit_dis
     x = np.linspace(min(bootstrap_dist), max(bootstrap_dist), num=1000)
     y = [dist.pdf(x1) for x1 in x]
     fig1.add_trace(go.Scatter(x=x, y=y, mode="lines", name=f'Fitted Distribution'), secondary_y=True)
-    
+
+    return fig1, dist
+
+
+@st.cache(allow_output_mutation=True)
+def bootstrap_sim(df, forecast_len, dist, num_sims=1000):
+    result = []
+    last_close = df['Adj Close'].iloc[-1]
     
     fig2 = make_subplots(1, 2, shared_yaxes=True)
     for i in range(num_sims):
@@ -200,7 +202,8 @@ elif (spread == "Butterfly/Condor"):
     st.write(f"Chance your spread is profitable: ", str(len(cagr_dist[np.where((cagr_dist <= upper) & (cagr_dist >= lower))]) / len(cagr_dist)))
 
 st.header("Bootstrap Simulations")
-fig1, boot_fig, boot_dist = bootstrap_sim(df, forecast_len, num_sims=num_sims, num_bootstraps=boots)
+fig1, dist = fit_boots(df, fit_distr, num_bootstraps=boots)
+fig1, boot_fig, boot_dist = bootstrap_sim(df, forecast_len, dist, num_sims=num_sims)
 st.plotly_chart(fig1)
 
 
@@ -252,3 +255,4 @@ st.markdown("""
 
 st.markdown("<p class='small-font'>You should not treat any forecast provided by this page as a specific inducement to make a particular investment or follow a particular strategy. This page's predictions are based upon information that is considered reliable, but does not warrant its completeness or accuracy, and it should not be relied upon as such. This page is not under any obligation to update or correct any information provided.</p>", unsafe_allow_html=True)
 st.markdown("<p class='small-font'>All forecasts shown on this page are based on past performance of the stock. Past performance is not indicative of future results. This page cannot guarantee any specific outcome or profit. You should be aware of the real risk of loss in following any prediction shown. Forecasts may fluctuate in price or value. Investors may get back less than invested. This material does not take into account your particular investment objectives, financial situation or needs and is not intended as recommendations appropriate for you. You must make an independent decision regarding forecasts provided. Before acting on information, you should consider whether it is suitable for your particular circumstances and strongly consider seeking advice from your own financial or investment adviser.</p>", unsafe_allow_html=True)
+
