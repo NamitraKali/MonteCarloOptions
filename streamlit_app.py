@@ -63,7 +63,7 @@ def cagr(prices):
     return cagr
 
 
-@st.cache(allow_output_mutation=True)
+#@st.cache(allow_output_mutation=True)
 def cagr_sim(df, forecast_len, num_sims=1000):
     result = []
     last_close = df['Adj Close'].iloc[-1]
