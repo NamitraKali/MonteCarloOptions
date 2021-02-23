@@ -169,7 +169,7 @@ with st.sidebar.beta_container():
 ########################################## MONTE CARLO SIMS ###################################################
 
 st.header("Monte Carlo Simulations")
-cagr_fig, cagr_dist = cagr_sim(df, forecast_len=forecast_len, num_sims=num_sims)
+cagr_fig, cagr_dist = cagr_sim(df, forecast_len, num_sims)
 
 if (spread == "Call"):
     target_price = strike + premium
