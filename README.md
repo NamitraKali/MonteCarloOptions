@@ -1,6 +1,10 @@
 # Monte Carlo Options Calculator
 
+Deployed app can be found [here](https://montecarlooptions.herokuapp.com/)
+
 Here is an application of Monte Carlo Simulations to try and provide insight on whether your options spreads are going to be in or out of the money. All you need to do is provide a stock ticker and your spread info and the page will provide you with a couple of different simulations telling you how likely it is for your spread to be profitable.
+
+This page was deployed using Heroku
 
 ### Breakdown of the Page
 
